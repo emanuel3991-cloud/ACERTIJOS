@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adivina, Adivinador</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Nunito+Sans:wght@400;700;800&display=swap">
+<style>
+:root{--bg:#1d0f1a;--bg2:#2a1626;--line:#4a2a42;--ink:#fbf2e4;--muted:#c7a9bd;--card:#fbf2e4;--cink:#2a1626;--brass:#f0b43c;--hint:#7fd1c7;--ok:#4fd18b;--no:#ff5d5d;--tc:#f0b43c}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,sans-serif;font-size:17px}
+button,input{font:inherit}
+.wrap{max-width:520px;margin:0 auto;padding:16px;display:grid;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.logo{font-family:"Bowlby One",Impact,sans-serif;font-size:1.25rem}
+.logo span{color:var(--brass)}
+.badge{border-radius:999px;padding:5px 12px;font-weight:800;background:var(--tc);color:#111;font-size:.9rem;white-space:nowrap}
+h2{font-family:"Bowlby One",Impact,sans-serif;font-weight:400;margin:0;font-size:1.6rem;line-height:1.1}
+p{margin:0}
+.muted{color:var(--muted)}
+.field{width:100%;padding:14px;border-radius:12px;border:2px solid var(--line);background:var(--bg2);color:var(--ink)}
+.field:focus{outline:none;border-color:var(--brass)}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.teams button{border:3px solid transparent;border-radius:14px;padding:18px 10px;font-weight:800;color:#111;cursor:pointer;display:grid;gap:2px}
+.teams button small{font-weight:600;opacity:.75}
+.teams button.sel{border-color:var(--ink);box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--ink)}
+.btn{border:0;border-radius:14px;padding:16px;font-weight:800;font-size:1.1rem;background:var(--brass);color:var(--bg);cursor:pointer;width:100%}
+.btn:disabled{opacity:.4}
+.card{background:var(--card);color:var(--cink);border-radius:18px;padding:20px;display:grid;gap:10px}
+.card .cat{justify-self:start;background:var(--cink);color:var(--card);border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.card .q{font-size:1.35rem;font-weight:800;line-height:1.25}
+.card .h{border-top:2px dashed #d8c9b5;padding-top:10px;color:#1d5a53;font-weight:700}
+.card .h b{background:var(--hint);color:#0d2b28;border-radius:6px;padding:1px 7px;font-size:.75rem;text-transform:uppercase;margin-right:6px}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.clock{font-family:"Bowlby One",Impact,sans-serif;font-size:2rem;color:var(--brass)}
+.clock.low{color:var(--no)}
+.sent{display:grid;gap:6px}
+.sent div{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px}
+.sent .bad{border-color:var(--no)}
+.sent .good{border-color:var(--ok)}
+.big{text-align:center;display:grid;gap:8px;padding:10px 0}
+.big .ans{font-family:"Bowlby One",Impact,sans-serif;font-size:1.9rem;color:var(--brass);line-height:1.1}
+.win{border-radius:16px;padding:16px;text-align:center;font-weight:800;font-size:1.2rem;color:#111}
+.board{display:grid;gap:6px}
+.board div{display:flex;justify-content:space-between;background:var(--bg2);border-left:8px solid;border-radius:10px;padding:10px 12px;font-weight:800}
+.err{color:var(--no);font-weight:700}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;padding:4px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="muted">Conectando…</p></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const sock = io();
+const app = document.getElementById('app');
+const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+let id = get('acert-id'); if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); put('acert-id', id); }
+let nombre = get('acert-nombre') || '', eq = get('acert-eq') !== null ? +get('acert-eq') : null;
+let ultimo = '', unido = false, st = null, mias = [], fin = 0, eqElegido = eq, borrador = '';
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function unirse() { sock.emit('unirse', { id, nombre, eq }); unido = true; }
+sock.on('connect', () => { if (nombre && eq !== null) unirse(); });
+sock.on('yo', d => { eq = d.eq; put('acert-eq', eq); pintar(); });
+sock.on('estado', e => { st = e; fin = Date.now() + (e.restante || 0); pintar(); });
+sock.on('equipo', r => { mias = r; pintar(); });
+setInterval(() => {
+  const c = document.getElementById('clock'); if (!c || !st) return;
+  const s = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+  c.textContent = s; c.classList.toggle('low', s <= 10);
+}, 250);
+
+function pintar() {
+  if (!st) return;
+  const inp = document.getElementById('resp'); if (inp) borrador = inp.value;
+  const hadFocus = inp && document.activeElement === inp;
+  if (!unido) return pintarRegistro();
+  const E = st.equipos[eq], cab = `<div class="top"><div class="logo">Adivina, <span>adivinador</span></div><span class="badge" style="--tc:${E.color}">${esc(E.nombre)}</span></div>`;
+  let h = cab;
+  if (st.fase === 'espera') {
+    h += `<div class="big"><h2>¡Ya estás dentro, ${esc(nombre)}!</h2><p class="muted">Espera a que el conductor muestre el primer acertijo.</p></div>${tabla()}
+      <button class="linkbtn" id="cambiar">Cambiar mi nombre o equipo</button>`;
+  } else if (st.fase === 'final') {
+    const orden = st.equipos.map((e, i) => ({ ...e, i })).sort((a, b) => b.pts - a.pts);
+    h += `<div class="big"><p class="muted">Fin del juego</p><h2>Ganó ${esc(orden[0].nombre)}</h2></div>${tabla()}`;
+  } else {
+    const usados = mias.length, quedan = st.intentos - usados, abierta = st.fase === 'abierta';
+    h += `<div class="row"><span class="muted">Acertijo ${st.n}</span>${abierta ? '<span class="clock" id="clock"></span>' : ''}</div>
+      <div class="card"><span class="cat">${esc(st.cat)}</span><div class="q">${esc(st.q)}</div>
+      ${st.pista ? `<div class="h"><b>Pista</b>${esc(st.pista)}</div>` : ''}</div>`;
+    if (st.fase === 'revelada') {
+      const g = st.ganador;
+      h += g ? `<div class="win" style="background:${st.equipos[g.eq].color}">${g.eq === eq ? '¡Tu equipo ganó' : esc(st.equipos[g.eq].nombre) + ' ganó'} ${g.pts} puntos!</div>` : `<div class="win" style="background:var(--muted)">Nadie lo adivinó</div>`;
+      h += `<div class="big"><p class="muted">La respuesta era</p><div class="ans">${esc(st.respuesta)}</div></div>`;
+    } else if (abierta && quedan > 0 && !st.ganador) {
+      h += `<form id="f" style="display:grid;gap:10px">
+        <input class="field" id="resp" maxlength="60" autocomplete="off" placeholder="Escribe la respuesta de tu equipo">
+        <button class="btn">Enviar respuesta</button>
+        <p class="muted" style="text-align:center">Tu equipo tiene ${quedan} de ${st.intentos} intento${st.intentos > 1 ? 's' : ''}. Vale ${st.vale} puntos.</p></form>`;
+    } else {
+      h += `<div class="big"><p class="muted">${abierta ? 'Tu equipo ya usó sus intentos.' : '¡Se acabó el tiempo! Esperen la respuesta.'}</p></div>`;
+    }
+    if (mias.length) h += `<div class="sent"><p class="muted">Respuestas de tu equipo</p>${mias.map(r => `<div class="${r.ok ? 'good' : 'bad'}"><span>${esc(r.texto)}</span><span>${r.ok ? '✓' : '✕'} ${esc(r.nombre)}</span></div>`).join('')}</div>`;
+    h += tabla();
+  }
+  if (h === ultimo) return;
+  ultimo = h;
+  app.innerHTML = h;
+  const f = document.getElementById('f');
+  if (f) {
+    const i = document.getElementById('resp');
+    i.value = borrador;
+    if (hadFocus) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+    f.onsubmit = ev => { ev.preventDefault(); const t = i.value.trim(); if (!t) return; sock.emit('responder', { id, texto: t }); borrador = ''; i.value = ''; };
+  }
+  const c = document.getElementById('cambiar'); if (c) c.onclick = () => { unido = false; ultimo = ''; pintar(); };
+}
+
+function tabla() {
+  return `<div class="board">${st.equipos.map(e => `<div style="border-color:${e.color}"><span>${esc(e.nombre)}</span><span>${e.pts}</span></div>`).join('')}</div>`;
+}
+
+function pintarRegistro() {
+  ultimo = '';
+  const n0 = document.getElementById('nom'); if (n0) nombre = n0.value;
+  app.innerHTML = `<div class="logo" style="font-size:1.6rem">Adivina, <span>adivinador</span></div>
+  <h2>Únete al juego</h2>
+  <input class="field" id="nom" maxlength="20" placeholder="Tu nombre" value="${esc(nombre)}">
+  <p class="muted">Elige tu equipo</p>
+  <div class="teams">${st.equipos.map((e, i) => `<button type="button" data-i="${i}" class="${eqElegido === i ? 'sel' : ''}" style="background:${e.color}">${esc(e.nombre)}<small>${e.jugadores} ${e.jugadores === 1 ? 'jugador' : 'jugadores'}</small></button>`).join('')}</div>
+  ${st.fase !== 'espera' && eq !== null ? '<p class="muted">El juego ya empezó, así que te quedas en tu equipo de antes.</p>' : ''}
+  <p class="err" id="err"></p>
+  <button class="btn" id="go">Entrar</button>`;
+  app.querySelectorAll('.teams button').forEach(b => b.onclick = () => { eqElegido = +b.dataset.i; nombre = document.getElementById('nom').value; pintarRegistro(); });
+  document.getElementById('go').onclick = () => {
+    const n = document.getElementById('nom').value.trim();
+    if (!n) return document.getElementById('err').textContent = 'Escribe tu nombre.';
+    if (eqElegido === null) return document.getElementById('err').textContent = 'Elige un equipo.';
+    nombre = n; eq = eqElegido; put('acert-nombre', nombre); put('acert-eq', eq); unirse(); pintar();
+  };
+}
+</script>
+</body>
+</html>
