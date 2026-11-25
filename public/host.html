@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adivina, Adivinador · Conductor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Nunito+Sans:wght@400;700;800&display=swap">
+<style>
+:root{--bg:#1d0f1a;--bg2:#2a1626;--line:#4a2a42;--ink:#fbf2e4;--muted:#c7a9bd;--card:#fbf2e4;--cink:#2a1626;--brass:#f0b43c;--brass2:#c4851a;--hint:#7fd1c7;--ok:#4fd18b;--no:#ff5d5d}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(90% 60% at 50% 0%,#3a1c33 0%,var(--bg) 70%);background-color:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,sans-serif;font-size:17px}
+button,input{font:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:18px;display:grid;gap:16px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;font-family:"Bowlby One",Impact,sans-serif;font-size:clamp(1.4rem,3vw,2.1rem)}
+.logo .q{width:44px;height:44px;border-radius:50%;background:var(--brass);color:var(--bg);display:grid;place-items:center;font-size:1.5rem;transform:rotate(-8deg)}
+.logo span{color:var(--brass)}
+.pill{border:2px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:800}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:800;font-size:1.05rem;background:var(--ink);color:var(--bg);cursor:pointer}
+.btn.brass{background:var(--brass)}
+.btn.hint{background:var(--hint);color:#0d2b28}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.big{font-size:1.2rem;padding:16px 28px}
+.btn:disabled{opacity:.35;cursor:default}
+.ctrls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.teams{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.team{border:2px solid var(--line);border-top:6px solid var(--tc);border-radius:14px;padding:10px 14px;background:var(--bg2);display:grid;gap:4px;min-width:0}
+.team .n{font-weight:800;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team .p{font-family:"Bowlby One",Impact,sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);color:var(--brass);line-height:1}
+.team .s{font-size:.9rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);display:inline-block}
+.dot.on{background:var(--no);border-color:var(--no)}
+.team.won{box-shadow:0 0 0 4px var(--tc)}
+.play{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:20px;align-items:start}
+.card{position:relative;background:var(--card);color:var(--cink);border-radius:20px;padding:30px 34px;box-shadow:0 18px 0 -6px var(--brass2),0 26px 40px rgba(0,0,0,.45);min-height:260px;display:grid;align-content:center;gap:14px}
+.card::before{content:"?";position:absolute;right:20px;top:-26px;font-family:"Bowlby One",Impact,sans-serif;font-size:5rem;color:var(--brass);transform:rotate(12deg)}
+.cat{justify-self:start;background:var(--cink);color:var(--card);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.txt{font-size:clamp(1.6rem,3.8vw,3rem);font-weight:800;line-height:1.18}
+.hl{border-top:2px dashed #d8c9b5;padding-top:12px;color:#1d5a53;font-weight:700;font-size:clamp(1.1rem,2.2vw,1.5rem)}
+.hl b{background:var(--hint);color:#0d2b28;border-radius:6px;padding:2px 8px;font-size:.78rem;text-transform:uppercase;margin-right:8px}
+.ans{border-top:2px solid var(--cink);padding-top:12px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.ans small{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+.ans span{font-family:"Bowlby One",Impact,sans-serif;font-size:clamp(1.8rem,4.6vw,3.4rem);color:#b0272f;line-height:1.05}
+.side{display:grid;gap:12px;justify-items:center;text-align:center}
+.clock{font-family:"Bowlby One",Impact,sans-serif;font-size:4rem;color:var(--brass);line-height:1}
+.clock.low{color:var(--no)}
+.qrbox{background:#fff;border-radius:14px;padding:10px;display:inline-block}
+.qrbox img,.qrbox canvas{display:block}
+.lobby{display:grid;grid-template-columns:auto minmax(0,1fr);gap:30px;align-items:center}
+.lobby h2{font-family:"Bowlby One",Impact,sans-serif;font-weight:400;font-size:clamp(2.2rem,5vw,4rem);margin:0;line-height:1}
+.lobby h2 span{color:var(--brass)}
+.url{font-size:1.3rem;font-weight:800;word-break:break-all}
+.banner{border-radius:14px;padding:14px 18px;font-weight:800;font-size:1.3rem;color:#111;text-align:center}
+.list{display:grid;gap:6px}
+.list div{display:flex;gap:10px;align-items:center;background:var(--bg2);border:2px solid var(--line);border-left:8px solid var(--tc);border-radius:10px;padding:8px 12px}
+.list .t{flex:1;font-weight:800;min-width:0;overflow-wrap:anywhere}
+.list .ok{border-color:var(--ok)}
+.list button{border:0;border-radius:8px;background:var(--ok);color:#06210f;font-weight:800;padding:6px 10px;cursor:pointer}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px}
+.rank{display:grid;gap:8px;max-width:620px;width:100%;margin:0 auto}
+.rank div{display:flex;justify-content:space-between;background:var(--bg2);border:2px solid var(--line);border-left:8px solid var(--tc);border-radius:12px;padding:12px 18px;font-weight:800;font-size:1.4rem;text-transform:uppercase}
+.rank b{font-family:"Bowlby One",Impact,sans-serif;font-weight:400;color:var(--brass)}
+.login{max-width:380px;margin:12vh auto;display:grid;gap:12px;text-align:center}
+.field{padding:14px;border-radius:12px;border:2px solid var(--line);background:var(--bg2);color:var(--ink);text-align:center}
+.minqr{position:fixed;right:14px;bottom:14px;background:#fff;border-radius:10px;padding:6px;text-align:center;color:#111;font-size:.75rem;font-weight:800}
+label.chk{display:flex;gap:8px;align-items:center;color:var(--muted);cursor:pointer}
+@media (max-width:820px){.teams{grid-template-columns:1fr 1fr}.play,.lobby{grid-template-columns:1fr}.minqr{display:none}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="logo" style="justify-content:center"><span class="q">?</span>Conductor</div>
+  <input class="field" id="clave" type="password" placeholder="Contraseña" autocomplete="current-password">
+  <button class="btn brass" id="entrar">Entrar</button>
+  <p class="muted" id="msg"></p>
+</div>
+<div id="app" class="wrap" hidden></div>
+<div id="minqr" class="minqr" hidden><div id="qrs"></div>Únete</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const sock = io();
+const app = document.getElementById('app');
+const URLJ = location.origin + '/';
+let clave = sessionStorage.getItem('acert-clave') || '';
+let st = null, resp = [], fin = 0, verResp = false;
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const host = (acc, i) => sock.emit('host', { clave, acc, i });
+
+document.getElementById('entrar').onclick = () => { clave = document.getElementById('clave').value; host('ping'); };
+document.getElementById('clave').onkeydown = e => { if (e.key === 'Enter') document.getElementById('entrar').click(); };
+sock.on('connect', () => { if (clave) host('ping'); });
+sock.on('clave', ok => {
+  if (!ok) { document.getElementById('msg').textContent = 'Contraseña incorrecta.'; return; }
+  sessionStorage.setItem('acert-clave', clave);
+  document.getElementById('login').hidden = true; app.hidden = false;
+  if (!document.querySelector('#qrs canvas, #qrs img')) new QRCode(document.getElementById('qrs'), { text: URLJ, width: 110, height: 110 });
+  pintar();
+});
+sock.on('estado', e => { st = e; fin = Date.now() + (e.restante || 0); if (!app.hidden) pintar(); });
+sock.on('respuestas', r => { resp = r; if (!app.hidden) pintar(); });
+setInterval(() => {
+  const c = document.getElementById('clock'); if (!c || !st) return;
+  const s = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+  c.textContent = s; c.classList.toggle('low', s <= 10);
+}, 250);
+
+function equipos(won) {
+  return `<div class="teams">${st.equipos.map((e, i) => `<div class="team ${won === i ? 'won' : ''}" style="--tc:${e.color}">
+    <span class="n">${esc(e.nombre)}</span><span class="p">${e.pts}</span>
+    <span class="s">${e.jugadores} ${e.jugadores === 1 ? 'jugador' : 'jugadores'}${st.fase === 'abierta' || st.fase === 'cerrada' ? ` · ${Array.from({ length: st.intentos }, (_, k) => `<i class="dot ${k < e.usados ? 'on' : ''}"></i>`).join('')}` : ''}</span></div>`).join('')}</div>`;
+}
+const cab = right => `<div class="top"><div class="logo"><span class="q">?</span>Adivina, <span>adivinador</span></div><div class="ctrls">${right || ''}</div></div>`;
+
+function pintar() {
+  if (!st) return;
+  document.getElementById('minqr').hidden = st.fase === 'espera';
+  let h = '';
+  if (st.fase === 'espera') {
+    const total = st.equipos.reduce((a, e) => a + e.jugadores, 0);
+    h = cab() + `<div class="lobby"><div class="qrbox" id="qrbig"></div>
+      <div style="display:grid;gap:14px"><h2>Escanea y <span>únete</span></h2>
+      <p class="muted">O entra desde el navegador a:</p><div class="url">${esc(URLJ)}</div>
+      <p class="muted">Escribe tu nombre y elige tu equipo. Cada equipo tiene ${st.intentos} intentos por acertijo.</p>
+      <div class="ctrls"><button class="btn brass big" data-a="siguiente">Empezar · ${total} conectados</button></div></div></div>` + equipos();
+  } else if (st.fase === 'final') {
+    const o = st.equipos.map((e, i) => ({ ...e, i })).sort((a, b) => b.pts - a.pts);
+    h = cab() + `<div style="text-align:center;display:grid;gap:10px"><p class="muted">Los mejores adivinadores</p>
+      <div class="logo" style="justify-content:center;font-size:clamp(2.4rem,7vw,5rem);color:var(--brass)">${esc(o[0].nombre)}</div></div>
+      <div class="rank">${o.map((e, k) => `<div style="--tc:${e.color}"><span>${k + 1}. ${esc(e.nombre)}</span><b>${e.pts}</b></div>`).join('')}</div>
+      <div class="ctrls" style="justify-content:center"><button class="btn ghost" data-a="reiniciar" id="rei">Nuevo juego (borra puntos)</button></div>`;
+  } else {
+    const rev = st.fase === 'revelada', g = st.ganador;
+    h = cab(`<span class="pill">${st.n} / ${st.total}</span>`) + equipos(g ? g.eq : null) + `
+    <div class="play"><div class="card"><span class="cat">${esc(st.cat)}</span><div class="txt">${esc(st.q)}</div>
+      ${st.pista ? `<div class="hl"><b>Pista</b>${esc(st.pista)}</div>` : ''}
+      ${rev ? `<div class="ans"><small>Respuesta</small><span>${esc(st.respuesta)}</span></div>` : ''}</div>
+      <div class="side">${st.fase === 'abierta' ? `<span class="muted">Segundos</span><div class="clock" id="clock"></div>` : `<div class="clock" style="font-size:1.6rem">${rev ? 'Respuesta' : '¡Tiempo!'}</div>`}
+        <span class="muted">Vale</span><div class="clock" style="font-size:2.4rem">${st.vale}</div></div></div>
+    ${rev ? (g ? `<div class="banner" style="background:${st.equipos[g.eq].color}">${esc(st.equipos[g.eq].nombre)} gana ${g.pts} puntos · respondió ${esc(g.nombre)}: “${esc(g.texto)}”</div>`
+              : `<div class="banner" style="background:var(--muted)">Nadie lo adivinó</div>`) : ''}
+    <div class="ctrls">
+      <button class="btn hint" data-a="pista" ${st.fase !== 'abierta' || st.conPista ? 'disabled' : ''}>Dar pista</button>
+      <button class="btn ghost" data-a="revelar" ${rev ? 'disabled' : ''}>Mostrar respuesta</button>
+      <button class="btn brass" data-a="${st.n >= st.total ? 'terminar' : 'siguiente'}">${st.n >= st.total ? 'Ver ganadores' : 'Siguiente acertijo'}</button>
+      <button class="btn ghost" data-a="terminar">Terminar juego</button>
+      <label class="chk"><input type="checkbox" id="ver" ${verResp ? 'checked' : ''}> Ver respuestas de los equipos</label>
+    </div>
+    ${verResp || rev ? lista(rev) : ''}`;
+  }
+  app.innerHTML = h;
+  const big = document.getElementById('qrbig');
+  if (big) new QRCode(big, { text: URLJ, width: 280, height: 280 });
+  const v = document.getElementById('ver'); if (v) v.onchange = () => { verResp = v.checked; pintar(); };
+}
+
+function lista(rev) {
+  const rs = rev ? st.todas : resp;
+  if (!rs.length) return `<div class="panel"><span class="muted">Todavía no llegan respuestas.</span></div>`;
+  return `<div class="panel">${rev ? '' : '<span class="muted">Ojo: esto también se ve en la pantalla proyectada. Si una respuesta es buena y el juego no la reconoció, dale ✓.</span>'}
+    <div class="list">${rs.map((r, i) => `<div class="${r.ok ? 'ok' : ''}" style="--tc:${st.equipos[r.eq].color}"><span class="t">${esc(r.texto)}</span><span class="muted">${esc(r.nombre)}</span>
+    ${r.ok ? '✓' : (!rev && !st.ganador ? `<button data-a="otorgar" data-i="${i}">✓ Es correcta</button>` : '✕')}</div>`).join('')}</div></div>`;
+}
+
+let confirmar = false;
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  const a = b.dataset.a;
+  if (a === 'reiniciar' && !confirmar) { confirmar = true; b.textContent = '¿Seguro? Toca otra vez'; return; }
+  if (a === 'terminar' && st.n < st.total && !b.dataset.ok) { b.dataset.ok = 1; b.textContent = '¿Terminar ya? Toca otra vez'; return; }
+  confirmar = false;
+  host(a, b.dataset.i !== undefined ? +b.dataset.i : undefined);
+});
+</script>
+</body>
+</html>
