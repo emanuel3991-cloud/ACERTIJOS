@@ -20,47 +20,36 @@ const EQUIPOS = [
   { nombre: 'Equipo Verde', color: '#22c55e' }
 ];
 
-// k = palabras que cuentan como respuesta correcta (sin importar acentos ni mayúsculas)
+// Salen en este orden: de fáciles a muy difíciles
 const ACERTIJOS = [
   { cat: 'Clásicos', q: 'Oro parece, plata no es. El que no lo adivine, bien tonto es.', h: 'Es una fruta', a: 'El plátano', k: ['platano', 'banana', 'platanos'] },
-  { cat: 'Clásicos', q: 'Blanco por dentro, verde por fuera. Si quieres que te lo diga, espera.', h: 'Es una fruta', a: 'La pera', k: ['pera', 'peras'] },
   { cat: 'Clásicos', q: 'Agua pasa por mi casa, cate de mi corazón.', h: 'Es verde y se usa para el guacamole', a: 'El aguacate', k: ['aguacate', 'aguacates', 'palta'] },
   { cat: 'Clásicos', q: 'Te lo digo y te repito, y te lo vuelvo a decir.', h: 'Se toma calientito', a: 'El té', k: ['te'] },
   { cat: 'Clásicos', q: 'Lana sube, lana baja.', h: 'Junta las palabras', a: 'La navaja', k: ['navaja'] },
-  { cat: 'Clásicos', q: 'Tiene dientes y no come, tiene cabeza y no es hombre.', h: 'Se usa en la cocina y huele fuerte', a: 'El ajo', k: ['ajo', 'ajos'] },
+  { cat: 'Oficina', q: 'Tengo teclas pero no soy piano, y sin mí no podrías escribir este correo.', h: 'Está frente a tu computadora', a: 'El teclado', k: ['teclado'] },
+  { cat: 'Gasolinera', q: 'Entre más corre el coche, más me gasto; sin mí, el motor no arranca.', h: 'Se vende por litro', a: 'La gasolina', k: ['gasolina', 'combustible', 'gas'] },
   { cat: 'Clásicos', q: 'Tengo agujas y no coso, no tengo pies y ando.', h: 'Lo traes en la muñeca o en la pared', a: 'El reloj', k: ['reloj', 'relojes'] },
-  { cat: 'Clásicos', q: 'Mientras más seca, más moja.', h: 'La usas después de bañarte', a: 'La toalla', k: ['toalla'] },
-  { cat: 'Clásicos', q: 'Soy alta cuando soy joven y bajita cuando soy vieja.', h: 'Me prendes cuando se va la luz', a: 'La vela', k: ['vela', 'veladora'] },
-  { cat: 'Clásicos', q: 'Una vieja con un diente que llama a toda la gente.', h: 'Está en la torre de la iglesia', a: 'La campana', k: ['campana'] },
+  { cat: 'Oficina', q: 'Tiene bandeja y no sirve comida; si se atora, toda la oficina se queja.', h: 'Necesita tinta y hojas', a: 'La impresora', k: ['impresora', 'copiadora', 'fotocopiadora'] },
   { cat: 'Lógica', q: '¿Qué pesa más, un kilo de algodón o un kilo de fierro?', h: 'Fíjate bien en la cantidad', a: 'Pesan lo mismo', k: ['mismo', 'igual', 'iguales', 'ninguno'] },
+  { cat: 'Gasolinera', q: 'Me inflan cuando estoy bajito y me cambian cuando me poncho.', h: 'Tiene presión y el coche lleva cuatro', a: 'La llanta', k: ['llanta', 'llantas', 'neumatico', 'rueda'] },
+  { cat: 'Clásicos', q: 'Mientras más seca, más moja.', h: 'La usas después de bañarte', a: 'La toalla', k: ['toalla'] },
   { cat: 'Lógica', q: 'Vas en una carrera y rebasas al que va en segundo lugar. ¿En qué lugar quedas?', h: 'No es el primero', a: 'En segundo lugar', k: ['segundo', '2', '2do', '2o'] },
   { cat: 'Lógica', q: 'El papá de María tiene cinco hijas: Lala, Lele, Lili y Lolo. ¿Cómo se llama la quinta?', h: 'Vuelve a leer el principio', a: 'María', k: ['maria'] },
   { cat: 'Lógica', q: '¿Qué meses del año tienen 28 días?', h: 'No es solo febrero', a: 'Todos', k: ['todos', '12'] },
-  { cat: 'Lógica', q: 'Un gallo pone un huevo en la punta del techo. ¿Hacia qué lado cae?', h: 'Piensa en el gallo', a: 'Hacia ninguno: los gallos no ponen huevos', k: ['no ponen', 'no pone', 'ninguno', 'ningun', 'no ponen huevos'] },
-  { cat: 'Lógica', q: '¿Cuántos animales de cada especie subió Moisés al arca?', h: 'Revisa quién construyó el arca', a: 'Ninguno: fue Noé', k: ['noe', 'ninguno', 'cero', '0'] },
-  { cat: 'Lógica', q: 'Hay tres manzanas y te llevas dos. ¿Cuántas tienes?', h: 'Pregunta cuántas tienes tú', a: 'Dos', k: ['dos', '2'] },
-  { cat: 'Lógica', q: 'Un avión se estrella justo en la frontera entre México y Estados Unidos. ¿Dónde entierran a los sobrevivientes?', h: 'Piensa en la palabra "sobrevivientes"', a: 'En ningún lado: siguen vivos', k: ['vivos', 'vivo', 'ningun', 'ninguna', 'ninguno', 'no se entierran', 'no los entierran'] },
-  { cat: 'Lógica', q: 'Se rompe con solo decir su nombre.', h: 'Ahorita mismo todos lo están guardando', a: 'El silencio', k: ['silencio'] },
-  { cat: 'Lógica', q: 'Tiene ciudades pero no casas, ríos pero no agua, y bosques pero no árboles.', h: 'Lo usas para no perderte', a: 'Un mapa', k: ['mapa', 'mapas'] },
-  { cat: 'Lógica', q: 'Entre más hay, menos ves.', h: 'Pasa cuando apagas la luz', a: 'La oscuridad', k: ['oscuridad', 'obscuridad', 'oscuro', 'noche'] },
-  { cat: 'Lógica', q: 'Cuanto más le quitas, más grande se hace.', h: 'Se hace con una pala', a: 'Un hoyo', k: ['hoyo', 'agujero', 'pozo', 'hueco'] },
-  { cat: 'Oficina', q: 'Tengo teclas pero no soy piano, y sin mí no podrías escribir este correo.', h: 'Está frente a tu computadora', a: 'El teclado', k: ['teclado'] },
-  { cat: 'Oficina', q: 'Tiene bandeja y no sirve comida; si se atora, toda la oficina se queja.', h: 'Necesita tinta y hojas', a: 'La impresora', k: ['impresora', 'copiadora', 'fotocopiadora'] },
-  { cat: 'Oficina', q: 'Tiene cuello y no tiene cabeza, tiene brazos y no tiene manos.', h: 'La traes puesta', a: 'La camisa', k: ['camisa', 'playera', 'blusa', 'sueter', 'camiseta'] },
-  { cat: 'Oficina', q: 'Sale después de cada venta, es largo y delgado, y si lo pierdes no hay factura.', h: 'Lo da la caja al cobrar', a: 'El ticket', k: ['ticket', 'tiket', 'tique', 'recibo', 'comprobante'] },
-  { cat: 'Gasolinera', q: 'Entre más corre el coche, más me gasto; sin mí, el motor no arranca.', h: 'Se vende por litro', a: 'La gasolina', k: ['gasolina', 'combustible', 'gas'] },
-  { cat: 'Gasolinera', q: 'Tengo manguera y no soy bombero; despacho todo el día y nunca cobro sueldo.', h: 'Tiene una pistola y un contador de litros', a: 'La bomba de gasolina', k: ['bomba', 'dispensario', 'dispensador', 'surtidor', 'despachador'] },
-  { cat: 'Gasolinera', q: 'Me inflan cuando estoy bajito y me cambian cuando me poncho.', h: 'Tiene presión y el coche lleva cuatro', a: 'La llanta', k: ['llanta', 'llantas', 'neumatico', 'rueda'] },
-  { cat: 'Gasolinera', q: 'Me llenas por la boca, pero nunca como; te aviso con una luz cuando estoy vacío.', h: 'Está escondido en la parte de atrás del coche', a: 'El tanque de gasolina', k: ['tanque', 'deposito'] }
+  { cat: 'Muy difícil', q: 'Un papá y su hijo tienen un accidente. Al hijo lo llevan al hospital y el cirujano dice: "No puedo operarlo, es mi hijo". ¿Quién es el cirujano?', h: 'El papá se quedó en el lugar del accidente', a: 'Su mamá', k: ['mama', 'madre'] },
+  { cat: 'Muy difícil', q: 'Lo que el pobre tiene, el rico necesita, y si lo comes te mueres. ¿Qué es?', h: 'Es lo contrario de todo', a: 'Nada', k: ['nada'] },
+  { cat: 'Muy difícil', q: 'Es tuyo, pero los demás lo usan mucho más que tú.', h: 'Te lo pusieron al nacer', a: 'Tu nombre', k: ['nombre'] },
+  { cat: 'Muy difícil', q: '¿Qué palabra se escribe mal en todos los diccionarios?', h: 'La respuesta está en la misma pregunta', a: 'La palabra "mal"', k: ['mal'] },
+  { cat: 'Muy difícil', q: 'Un avión se estrella justo en la frontera entre México y Estados Unidos. ¿Dónde entierran a los sobrevivientes?', h: 'Piensa en la palabra "sobrevivientes"', a: 'En ningún lado: siguen vivos', k: ['vivos', 'vivo', 'ningun', 'ninguna', 'ninguno', 'no se entierran', 'no los entierran'] },
+  { cat: 'Muy difícil', q: 'Cuanto más le quitas, más grande se hace.', h: 'Se hace con una pala', a: 'Un hoyo', k: ['hoyo', 'agujero', 'pozo', 'hueco'] }
 ];
 
 const limpiar = t => ' ' + String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
 const correcta = (texto, k) => { const n = limpiar(texto); return k.some(p => n.includes(limpiar(p))); };
-const revolver = n => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 const nuevo = () => ({
-  fase: 'espera', qi: -1, orden: revolver(ACERTIJOS.length), pista: false, inicio: 0, fin: 0,
+  fase: 'espera', qi: -1, orden: ACERTIJOS.map((_, i) => i), pista: false, inicio: 0, fin: 0,
   puntos: EQUIPOS.map(() => 0), jug: {}, resp: [], ganador: null
 });
 let s = nuevo();
@@ -107,7 +96,7 @@ io.on('connection', sock => {
   sock.on('unirse', ({ id, nombre, eq }) => {
     if (!id || !nombre || !(eq >= 0 && eq < EQUIPOS.length)) return;
     const j = s.jug[id];
-    const equipo = j && s.fase !== 'espera' ? j.eq : eq; // el equipo solo se cambia antes de empezar
+    const equipo = j && s.fase !== 'espera' ? j.eq : eq;
     s.jug[id] = { nombre: String(nombre).trim().slice(0, 20), eq: equipo };
     EQUIPOS.forEach((_, i) => sock.leave('eq' + i));
     sock.join('eq' + equipo);
@@ -138,7 +127,7 @@ io.on('connection', sock => {
     }
     if (acc === 'pista' && s.fase === 'abierta') s.pista = true;
     if (acc === 'revelar' && (s.fase === 'abierta' || s.fase === 'cerrada')) { s.fase = 'revelada'; clearTimeout(reloj); }
-    if (acc === 'otorgar' && s.resp[i] && !s.ganador) ganar(s.resp[i]); // para respuestas buenas que el juego no reconoció
+    if (acc === 'otorgar' && s.resp[i] && !s.ganador) ganar(s.resp[i]);
     if (acc === 'terminar') { s.fase = 'final'; clearTimeout(reloj); }
     if (acc === 'reiniciar') { clearTimeout(reloj); s = nuevo(); }
     avisar();
